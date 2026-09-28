@@ -555,30 +555,90 @@
             gap: 80px;
             align-items: center;
         }
-        .about-photo-wrap { position: relative; }
-        .about-photo-wrap::before {
+        .about-sigil-wrap {
+            position: relative;
+            width: 320px; height: 320px;
+            border-radius: 16px;
+            background: radial-gradient(circle at 50% 50%, #101014 0%, #050507 80%, #000 100%);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            touch-action: none;
+            cursor: grab;
+            transition: border-color 0.4s, box-shadow 0.4s;
+        }
+        .about-sigil-wrap:active { cursor: grabbing; }
+        .about-sigil-wrap:hover {
+            border-color: var(--chrome-dark);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.9), 0 0 30px rgba(200,200,200,0.08);
+        }
+        .about-sigil-wrap::before {
             content: '';
             position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--chrome-light), var(--chrome-dark), var(--chrome-light));
+            inset: -2px;
+            border-radius: 17px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(70,70,70,0.1), rgba(255,255,255,0.2));
             background-size: 200% 200%;
-            animation: gradient-rotate 5s ease infinite;
-            opacity: 0.35;
-            z-index: -1;
+            animation: gradient-rotate 6s ease infinite;
+            opacity: 0.25;
+            z-index: 0;
+            pointer-events: none;
         }
-        @keyframes gradient-rotate {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        #sigil-canvas {
+            width: 100%; height: 100%;
+            display: block;
+            position: relative;
+            z-index: 1;
         }
-        .about-photo {
-            width: 300px; height: 300px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 1px solid var(--border);
+        .sigil-hud-bracket {
+            position: absolute;
+            width: 12px; height: 12px;
+            border-color: var(--chrome-mid);
+            opacity: 0.5;
+            z-index: 2;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
         }
-        .about-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .about-sigil-wrap:hover .sigil-hud-bracket {
+            opacity: 0.9;
+            border-color: var(--chrome-light);
+        }
+        .sigil-hud-bracket.top-l { top: 10px; left: 10px; border-top: 1.5px solid; border-left: 1.5px solid; }
+        .sigil-hud-bracket.top-r { top: 10px; right: 10px; border-top: 1.5px solid; border-right: 1.5px solid; }
+        .sigil-hud-bracket.btm-l { bottom: 10px; left: 10px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+        .sigil-hud-bracket.btm-r { bottom: 10px; right: 10px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
+        .sigil-hint {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-body);
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--chrome-mid);
+            z-index: 3;
+            pointer-events: none;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: color 0.3s, opacity 0.3s;
+            white-space: nowrap;
+        }
+        .about-sigil-wrap:hover .sigil-hint { color: var(--chrome-light); }
+        .sigil-hint-icon {
+            font-size: 0.65rem;
+            animation: pulse-dot 2s infinite;
+        }
 
         .about-text h3 {
             font-family: var(--font-heading);
@@ -618,8 +678,7 @@
                 justify-items: center;
                 text-align: center;
             }
-            .about-photo-wrap { margin: 0 auto; }
-            .about-photo { width: 220px; height: 220px; }
+            .about-sigil-wrap { margin: 0 auto; width: 280px; height: 280px; }
             .about-text p { max-width: 100%; }
             .about-stats { justify-content: center; }
         }
@@ -1166,9 +1225,15 @@
             <span class="section-label reveal">01 // About</span>
             <h2 class="section-title reveal">WHO I AM<span class="accent">.</span></h2>
             <div class="about-grid">
-                <div class="about-photo-wrap reveal-left">
-                    <div class="about-photo">
-                        <img src="profile.jpg" alt="Moideen Aflah" loading="lazy">
+                <div class="about-sigil-wrap reveal-left">
+                    <div class="sigil-hud-bracket top-l"></div>
+                    <div class="sigil-hud-bracket top-r"></div>
+                    <div class="sigil-hud-bracket btm-l"></div>
+                    <div class="sigil-hud-bracket btm-r"></div>
+                    <canvas id="sigil-canvas"></canvas>
+                    <div class="sigil-hint">
+                        <span class="sigil-hint-icon">❖</span>
+                        <span>Drag to rotate 3D sigil</span>
                     </div>
                 </div>
                 <div class="about-text reveal-right">
@@ -1652,6 +1717,272 @@
             const hud = document.getElementById('hudCoords');
             if (hud) hud.textContent = '◇ ' + targetMouseX.toFixed(2) + ' / ' + targetMouseY.toFixed(2);
         });
+
+        /* ═══════════════════════════════════════════════
+           INTERACTIVE 3D CHROME CYBERSIGILISM SCULPTURE
+        ═══════════════════════════════════════════════ */
+        (function initInteractiveSigil() {
+            const sigilCanvas = document.getElementById('sigil-canvas');
+            if (!sigilCanvas) return;
+
+            const sigilScene = new THREE.Scene();
+            const sigilCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            sigilCamera.position.set(0, 0, 7.8);
+
+            const sigilRenderer = new THREE.WebGLRenderer({
+                canvas: sigilCanvas,
+                alpha: true,
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            sigilRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            sigilRenderer.setClearColor(0x000000, 0);
+
+            function resizeSigil() {
+                const rect = sigilCanvas.parentElement.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                if (width > 0 && height > 0) {
+                    sigilCamera.aspect = width / height;
+                    sigilCamera.updateProjectionMatrix();
+                    sigilRenderer.setSize(width, height, false);
+                }
+            }
+            resizeSigil();
+            window.addEventListener('resize', resizeSigil);
+
+            // ── Studio Chrome Lights ──
+            const ambLight = new THREE.AmbientLight(0x22222a, 0.9);
+            sigilScene.add(ambLight);
+
+            const keyL = new THREE.DirectionalLight(0xffffff, 2.4);
+            keyL.position.set(5, 7, 6);
+            sigilScene.add(keyL);
+
+            const rimL = new THREE.DirectionalLight(0x99bbdd, 1.8);
+            rimL.position.set(-6, -4, -4);
+            sigilScene.add(rimL);
+
+            const topL = new THREE.PointLight(0xffffff, 1.2, 20);
+            topL.position.set(0, 5, 4);
+            sigilScene.add(topL);
+
+            const bottomL = new THREE.DirectionalLight(0x444455, 0.7);
+            bottomL.position.set(0, -6, 2);
+            sigilScene.add(bottomL);
+
+            // ── Chrome Materials ──
+            const chromeMat = new THREE.MeshPhongMaterial({
+                color: 0xdedede,
+                specular: 0xffffff,
+                shininess: 170,
+                side: THREE.DoubleSide
+            });
+            const darkChromeMat = new THREE.MeshPhongMaterial({
+                color: 0x5a5a62,
+                specular: 0xd0d0d0,
+                shininess: 130,
+                side: THREE.DoubleSide
+            });
+            const wireMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.12
+            });
+
+            // ── Root Cybersigilism Group ──
+            const sigilRoot = new THREE.Group();
+            sigilScene.add(sigilRoot);
+
+            // 1. Central Spiked Core
+            const coreGroup = new THREE.Group();
+            const coreGeo = new THREE.IcosahedronGeometry(0.85, 1);
+            const coreMesh = new THREE.Mesh(coreGeo, darkChromeMat);
+            coreGroup.add(coreMesh);
+
+            const coreWire = new THREE.Mesh(new THREE.IcosahedronGeometry(1.05, 1), wireMat);
+            coreGroup.add(coreWire);
+
+            // Core radial needle spikes
+            const spikeGeo = new THREE.ConeGeometry(0.12, 1.6, 6);
+            spikeGeo.translate(0, 0.8, 0);
+            const spikeDirs = [
+                [0, 1, 0], [0, -1, 0], [1, 0, 0], [-1, 0, 0],
+                [0.7, 0.7, 0], [-0.7, 0.7, 0], [0.7, -0.7, 0], [-0.7, -0.7, 0],
+                [0, 0.7, 0.7], [0, 0.7, -0.7], [0, -0.7, 0.7], [0, -0.7, -0.7]
+            ];
+            spikeDirs.forEach(dir => {
+                const sMesh = new THREE.Mesh(spikeGeo, chromeMat);
+                const target = new THREE.Vector3(...dir).normalize();
+                sMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), target);
+                sMesh.scale.set(0.7, 0.85, 0.7);
+                coreGroup.add(sMesh);
+            });
+            sigilRoot.add(coreGroup);
+
+            // 2. Cybersigilism Curved Scythe Blades (4-Fold Symmetry)
+            const bladeGroup = new THREE.Group();
+            function createBladeCurve(mirror) {
+                const pts = [];
+                const sign = mirror ? -1 : 1;
+                pts.push(new THREE.Vector3(0.3 * sign, 0.5, 0));
+                pts.push(new THREE.Vector3(1.2 * sign, 1.4, 0.3));
+                pts.push(new THREE.Vector3(2.2 * sign, 1.1, 0.1));
+                pts.push(new THREE.Vector3(2.6 * sign, 0.0, -0.2));
+                pts.push(new THREE.Vector3(2.1 * sign, -1.2, 0));
+                pts.push(new THREE.Vector3(1.0 * sign, -1.8, 0.2));
+                pts.push(new THREE.Vector3(0.2 * sign, -2.1, 0));
+                return new THREE.CatmullRomCurve3(pts);
+            }
+
+            const bladeCurveA = createBladeCurve(false);
+            const bladeCurveB = createBladeCurve(true);
+            const tubeGeoA = new THREE.TubeGeometry(bladeCurveA, 64, 0.05, 8, false);
+            const tubeGeoB = new THREE.TubeGeometry(bladeCurveB, 64, 0.05, 8, false);
+
+            for (let r = 0; r < 4; r++) {
+                const rotAngle = (r * Math.PI) / 2;
+                const wingA = new THREE.Mesh(tubeGeoA, chromeMat);
+                wingA.rotation.z = rotAngle;
+                bladeGroup.add(wingA);
+
+                const wingB = new THREE.Mesh(tubeGeoB, darkChromeMat);
+                wingB.rotation.z = rotAngle;
+                bladeGroup.add(wingB);
+
+                const tipGeo = new THREE.ConeGeometry(0.08, 0.8, 5);
+                tipGeo.translate(0, 0.4, 0);
+                const tipMesh = new THREE.Mesh(tipGeo, chromeMat);
+                tipMesh.position.set(Math.cos(rotAngle) * 2.5, Math.sin(rotAngle) * 2.5, 0);
+                tipMesh.rotation.z = rotAngle + Math.PI / 2;
+                bladeGroup.add(tipMesh);
+            }
+            sigilRoot.add(bladeGroup);
+
+            // 3. Orbiting Cybersigilism Glyph Rings
+            const ringGroup = new THREE.Group();
+            const knotGeo = new THREE.TorusKnotGeometry(2.35, 0.024, 160, 10, 3, 8);
+            const knotMesh = new THREE.Mesh(knotGeo, chromeMat);
+            ringGroup.add(knotMesh);
+
+            const barbRingGeo = new THREE.TorusGeometry(1.65, 0.025, 8, 100);
+            const bPos = barbRingGeo.attributes.position;
+            for (let i = 0; i < bPos.count; i++) {
+                const x = bPos.getX(i), y = bPos.getY(i), z = bPos.getZ(i);
+                const angle = Math.atan2(y, x);
+                const spike = Math.pow(Math.abs(Math.sin(angle * 8)), 6) * 0.45;
+                const len = Math.sqrt(x * x + y * y);
+                const s = (len + spike) / len;
+                bPos.setXYZ(i, x * s, y * s, z);
+            }
+            barbRingGeo.computeVertexNormals();
+            const barbMesh = new THREE.Mesh(barbRingGeo, darkChromeMat);
+            ringGroup.add(barbMesh);
+
+            sigilRoot.add(ringGroup);
+
+            // 4. Fine Needle Radiants (Cybersigilism Piercing Spikes)
+            const needleGeo = new THREE.CylinderGeometry(0.01, 0.035, 3.4, 6);
+            for (let i = 0; i < 8; i++) {
+                const nMesh = new THREE.Mesh(needleGeo, chromeMat);
+                nMesh.rotation.z = (i * Math.PI) / 4;
+                nMesh.rotation.x = (i % 2 === 0 ? 0.2 : -0.2);
+                sigilRoot.add(nMesh);
+            }
+
+            // ── Interactive Drag & Smooth Inertia ──
+            let isDragging = false;
+            let prevPointerX = 0, prevPointerY = 0;
+            let velX = 0, velY = 0;
+            let targetRotX = 0.2, targetRotY = 0;
+            const autoSpinSpeed = 0.006;
+
+            const wrap = sigilCanvas.parentElement;
+
+            function onPointerDown(e) {
+                isDragging = true;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                prevPointerX = clientX;
+                prevPointerY = clientY;
+                velX = 0;
+                velY = 0;
+            }
+
+            function onPointerMove(e) {
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+
+                if (isDragging) {
+                    const deltaX = clientX - prevPointerX;
+                    const deltaY = clientY - prevPointerY;
+                    velY = deltaX * 0.008;
+                    velX = deltaY * 0.008;
+                    targetRotY += velY;
+                    targetRotX += velX;
+                    prevPointerX = clientX;
+                    prevPointerY = clientY;
+                } else {
+                    const rect = sigilCanvas.getBoundingClientRect();
+                    const nx = ((clientX - rect.left) / rect.width - 0.5) * 2;
+                    const ny = ((clientY - rect.top) / rect.height - 0.5) * 2;
+                    keyL.position.x = 5 + nx * 3;
+                    keyL.position.y = 7 - ny * 3;
+                }
+            }
+
+            function onPointerUp() {
+                isDragging = false;
+            }
+
+            wrap.addEventListener('mousedown', onPointerDown);
+            window.addEventListener('mousemove', onPointerMove);
+            window.addEventListener('mouseup', onPointerUp);
+
+            wrap.addEventListener('touchstart', onPointerDown, { passive: true });
+            window.addEventListener('touchmove', onPointerMove, { passive: true });
+            window.addEventListener('touchend', onPointerUp);
+            window.addEventListener('touchcancel', onPointerUp);
+
+            // ── Animation Loop ──
+            const sigilClock = new THREE.Clock();
+
+            function animateSigil() {
+                requestAnimationFrame(animateSigil);
+                const t = sigilClock.getElapsedTime();
+
+                if (!isDragging) {
+                    targetRotY += autoSpinSpeed;
+                    velX *= 0.94;
+                    velY *= 0.94;
+                    targetRotX += velX;
+                    targetRotY += velY;
+                }
+
+                // Smooth interpolation (lerp)
+                sigilRoot.rotation.x += (targetRotX - sigilRoot.rotation.x) * 0.08;
+                sigilRoot.rotation.y += (targetRotY - sigilRoot.rotation.y) * 0.08;
+
+                // Internal counter-rotations
+                coreGroup.rotation.y = -t * 0.4;
+                coreGroup.rotation.z = Math.sin(t * 0.5) * 0.2;
+                ringGroup.rotation.z = t * 0.25;
+                ringGroup.rotation.x = Math.sin(t * 0.3) * 0.2;
+                bladeGroup.rotation.z = -t * 0.15;
+
+                // Subtle breathing scale
+                const breathe = 1 + Math.sin(t * 1.8) * 0.025;
+                sigilRoot.scale.set(breathe, breathe, breathe);
+
+                // Chrome specular light sweep
+                topL.position.x = Math.sin(t * 0.8) * 3;
+                topL.position.z = 4 + Math.cos(t * 0.8) * 2;
+
+                sigilRenderer.render(sigilScene, sigilCamera);
+            }
+            animateSigil();
+        })();
 
         /* ═══════════════════════════════════════════════
            CUSTOM CURSOR
